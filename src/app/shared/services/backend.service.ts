@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, EMPTY} from 'rxjs';
-import {delay, expand, last, switchMap, tap} from 'rxjs/operators';
+import {delay, expand, last, map, switchMap, tap} from 'rxjs/operators';
 
-import {API_URL, CALC_NDVI, GET_FOLDER_LIST, GET_PROGRESS} from '../constants/api-url-list';
+import {API_URL, CALC_NDVI, GET_FOLDER_LIST, GET_PROGRESS, GET_RESULT} from '../constants/api-url-list';
 import {Progress} from '../interfaces/api-interfaces';
 
 @Injectable({providedIn: 'root'})
@@ -31,10 +31,12 @@ export class BackendService {
   }
 
   startCalcNDVI(polygonCoords: string, date: string): void {
+    let curProcUuid: string;
     this.isLoading.next(true);
     const sub = this.http.post<string>(`${API_URL}${CALC_NDVI}`, {polygon: polygonCoords, date})
       .pipe(
         switchMap(procUuid => {
+          curProcUuid = procUuid;
           const request = this.http.get<Progress>(`${API_URL}${GET_PROGRESS}`, {params: {proc_uuid: procUuid}});
           return request.pipe(
             expand(res => {
@@ -43,7 +45,8 @@ export class BackendService {
             }),
             last()
           );
-        })
+        }),
+        switchMap(() => this.http.get(`${API_URL}${GET_RESULT}`, {params: {proc_uuid: curProcUuid}}))
       )
       .subscribe(res => {
         console.log(res);
