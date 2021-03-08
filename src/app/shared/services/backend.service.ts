@@ -17,7 +17,8 @@ export class BackendService {
     total_progress: 0,
     cur_progress: 0,
   });
-  result: ResultData;
+  resultString: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  private result: ResultData;
 
   constructor(private http: HttpClient,
               private leafletService: LeafletService) {
@@ -55,6 +56,7 @@ export class BackendService {
         console.log(res);
         this.result = res;
         this.leafletService.drawResult(res);
+        this.resultString.next(`Минимальное: ${res.min}\nМаксимальное: ${res.max}\nСреднее: ${res.mean}\nМедианное: ${res.median}`);
         this.isLoading.next(false);
         sub.unsubscribe();
       });
