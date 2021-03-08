@@ -3,7 +3,7 @@
              [progressValue]="(progress$ | async).cur_progress"></app-loading>
 <app-map></app-map>
 <div style="width: 100%; padding: 1rem">
-  <mat-form-field appearance="standard" style="margin-right: 1rem; width: 25rem">
+  <mat-form-field appearance="standard" style="margin-right: 1rem; width: 58%">
     <mat-label>Координаты района</mat-label>
     <input matInput placeholder="WKT" [(ngModel)]="polygonCoords">
   </mat-form-field>
@@ -21,7 +21,7 @@
   <button mat-raised-button color="primary" (click)="drawPolygon()" style="margin-right: 1rem">Нарисовать район</button>
   <button mat-raised-button color="primary" (click)="calcNDVI()">Расчёт NDVI</button>
 </div>
-<mat-form-field appearance="fill" style="margin-left: 1rem; width: 59%">
+<mat-form-field appearance="fill" style="padding-left: 1rem; width: 98%">
   <mat-label>Результаты расчета NDVI</mat-label>
   <textarea matInput [value]="result$ | async" readonly style="height: 6rem"></textarea>
 </mat-form-field>

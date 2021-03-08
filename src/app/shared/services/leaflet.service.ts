@@ -14,7 +14,7 @@ export class LeafletService {
   coordsChanges: Subject<string> = new Subject<string>();
 
   initMap(): void {
-    this.mymap = L.map('map').setView([55.75, 37.61], 8);
+    this.mymap = L.map('map').setView([46.1979, 40.9899], 8);
     const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
     });
