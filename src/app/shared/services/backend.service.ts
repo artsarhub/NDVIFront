@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, EMPTY} from 'rxjs';
-import {delay, expand, last, map, switchMap, tap} from 'rxjs/operators';
+import {delay, expand, last, switchMap} from 'rxjs/operators';
 
 import {API_URL, CALC_NDVI, GET_FOLDER_LIST, GET_PROGRESS, GET_RESULT} from '../constants/api-url-list';
-import {Progress} from '../interfaces/api-interfaces';
+import {Progress, ResultData} from '../interfaces/api-interfaces';
+import {LeafletService} from './leaflet.service';
 
 @Injectable({providedIn: 'root'})
 export class BackendService {
@@ -16,8 +17,10 @@ export class BackendService {
     total_progress: 0,
     cur_progress: 0,
   });
+  result: ResultData;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private leafletService: LeafletService) {
   }
 
   loadFolderList(): void {
@@ -46,10 +49,12 @@ export class BackendService {
             last()
           );
         }),
-        switchMap(() => this.http.get(`${API_URL}${GET_RESULT}`, {params: {proc_uuid: curProcUuid}}))
+        switchMap(() => this.http.get<ResultData>(`${API_URL}${GET_RESULT}`, {params: {proc_uuid: curProcUuid}}))
       )
       .subscribe(res => {
         console.log(res);
+        this.result = res;
+        this.leafletService.drawResult(res);
         this.isLoading.next(false);
         sub.unsubscribe();
       });
