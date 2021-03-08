@@ -53,7 +53,7 @@ export class BackendService {
         switchMap(() => this.http.get<ResultData>(`${API_URL}${GET_RESULT}`, {params: {proc_uuid: curProcUuid}}))
       )
       .subscribe(res => {
-        console.log(res);
+        // console.log(res);
         this.result = res;
         this.leafletService.drawResult(res);
         this.resultString.next(`Минимальное: ${res.min}\nМаксимальное: ${res.max}\nСреднее: ${res.mean}\nМедианное: ${res.median}`);

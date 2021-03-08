@@ -1,4 +1,6 @@
 import {Injectable} from '@angular/core';
+import 'leaflet-draw/dist/leaflet.draw.js';
+import {Subject} from 'rxjs';
 
 import {ResultData} from '../interfaces/api-interfaces';
 import {FILE_SERVER_URL} from '../constants/api-url-list';
@@ -8,6 +10,8 @@ declare var L;
 @Injectable({providedIn: 'root'})
 export class LeafletService {
   mymap;
+  polygons = new L.FeatureGroup();
+  coordsChanges: Subject<string> = new Subject<string>();
 
   initMap(): void {
     this.mymap = L.map('map').setView([55.75, 37.61], 8);
@@ -45,5 +49,68 @@ export class LeafletService {
     };
 
     const windSpeedLayer = L.leafletGeotiff(`${FILE_SERVER_URL}/${result.tif_name}`, options).addTo(this.mymap);
+    this.polygons.clearLayers();
+  }
+
+  drawGeom(elementId = 'polygon_coords', geomType = L.Draw.Polygon, drawnLayer = this.polygons): void {
+    // отрубаем режим рисования (для повторных нажатий)
+    this.mymap.off(L.Draw.Event.CREATED);
+
+    // получаем элемент, в который будем писать WKT строчку
+    // const inputElement = document.getElementById(elementId);
+
+    // вводим тип отрисовываемой геометрии
+    const geom = new geomType(this.mymap);
+
+    // включаем рисовалку
+    geom.enable();
+
+    // когд нарисовали
+    this.mymap.on('draw:created', (event) => {
+      // получаем нарисованный слой
+      const layer = event.layer;
+
+      // очищаем старые нарисованные объекты
+      drawnLayer.clearLayers();
+
+      // показываем на карте
+      drawnLayer.addLayer(layer);
+      drawnLayer.addTo(this.mymap);
+
+      // формируем строчку WKT
+      const wkt = this.toWKT(layer);
+
+      // и передаем в инпут
+      // $(inputElement).val(wkt);
+      this.coordsChanges.next(wkt);
+
+    });
+  }
+
+  private toWKT(layer): string {
+    let lng, lat, coords = [];
+
+    if (layer instanceof L.LayerGroup) {
+      layer = layer.getLayers()[0];
+    }
+
+    if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+      const latlngs = layer.getLatLngs()[0];
+      for (let i = 0; i < latlngs.length; i++) {
+
+        coords.push(latlngs[i].lng + ' ' + latlngs[i].lat);
+        if (i === 0) {
+          lng = latlngs[i].lng;
+          lat = latlngs[i].lat;
+        }
+      }
+      if (layer instanceof L.Polygon) {
+        return 'POLYGON((' + coords.join(',') + ',' + lng + ' ' + lat + '))';
+      } else if (layer instanceof L.Polyline) {
+        return 'LINESTRING(' + coords.join(',') + ')';
+      }
+    } else if (layer instanceof L.Marker) {
+      return 'POINT(' + layer.getLatLng().lng + ' ' + layer.getLatLng().lat + ')';
+    }
   }
 }

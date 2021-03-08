@@ -18,9 +18,11 @@
       </cdk-virtual-scroll-viewport>
     </mat-select>
   </mat-form-field>
+  <button mat-raised-button color="primary" (click)="drawPolygon()" style="margin-right: 1rem">Нарисовать район</button>
   <button mat-raised-button color="primary" (click)="calcNDVI()">Расчёт NDVI</button>
 </div>
 <mat-form-field appearance="fill" style="margin-left: 1rem; width: 59%">
   <mat-label>Результаты расчета NDVI</mat-label>
   <textarea matInput [value]="result$ | async" readonly style="height: 6rem"></textarea>
 </mat-form-field>
+
