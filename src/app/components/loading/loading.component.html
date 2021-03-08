@@ -2,7 +2,8 @@
   <div class="background">
     <div class="progress-wrapper">
       <mat-progress-spinner color="primary"
-                            mode="indeterminate">
+                            [mode]="progressValue ? 'determinate' : 'indeterminate'"
+                            [value]="progressValue">
       </mat-progress-spinner>
       <label *ngIf="message !== ''">{{ message }}</label>
     </div>

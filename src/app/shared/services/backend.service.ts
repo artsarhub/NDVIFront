@@ -37,8 +37,10 @@ export class BackendService {
         switchMap(procUuid => {
           const request = this.http.get<Progress>(`${API_URL}${GET_PROGRESS}`, {params: {proc_uuid: procUuid}});
           return request.pipe(
-            tap(progress => this.progress.next(progress)),
-            expand(res => res.total_progress === 100 ? EMPTY : request.pipe(delay(1000))),
+            expand(res => {
+              this.progress.next(res);
+              return res.total_progress === 100 ? EMPTY : request.pipe(delay(1000));
+            }),
             last()
           );
         })

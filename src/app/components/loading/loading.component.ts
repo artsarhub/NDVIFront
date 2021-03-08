@@ -9,6 +9,7 @@ export class LoadingComponent {
 
   @Input() isLoading = false;
   @Input() message = '';
+  @Input() progressValue;
 
   constructor() {
   }

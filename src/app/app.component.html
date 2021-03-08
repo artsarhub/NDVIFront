@@ -1,5 +1,6 @@
 <app-loading [isLoading]="isLoading$ | async"
-             [message]="(progress$ | async).message"></app-loading>
+             [message]="(progress$ | async).message"
+             [progressValue]="(progress$ | async).cur_progress"></app-loading>
 <app-map></app-map>
 <div style="width: 100%; padding: 1rem">
   <mat-form-field appearance="standard" style="margin-right: 1rem; width: 25rem">
