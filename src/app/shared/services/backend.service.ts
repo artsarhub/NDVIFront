@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, EMPTY} from 'rxjs';
 import {delay, expand, last, switchMap} from 'rxjs/operators';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 import {API_URL, CALC_NDVI, GET_FOLDER_LIST, GET_PROGRESS, GET_RESULT} from '../constants/api-url-list';
 import {Progress, ResultData} from '../interfaces/api-interfaces';
@@ -21,17 +22,24 @@ export class BackendService {
   private result: ResultData;
 
   constructor(private http: HttpClient,
-              private leafletService: LeafletService) {
+              private leafletService: LeafletService,
+              private snackBar: MatSnackBar) {
   }
 
   loadFolderList(): void {
     this.isLoading.next(true);
     const sub = this.http.get<string[]>(`${API_URL}${GET_FOLDER_LIST}`)
-      .subscribe(folderList => {
-        this.folderList.next(folderList);
-        this.isLoading.next(false);
-        sub.unsubscribe();
-      });
+      .subscribe(
+        folderList => {
+          this.folderList.next(folderList);
+          this.isLoading.next(false);
+          sub.unsubscribe();
+        },
+        error => {
+          this.isLoading.next(false);
+          this.snackBar.open(error);
+        }
+      );
   }
 
   startCalcNDVI(polygonCoords: string, date: string): void {
@@ -45,6 +53,9 @@ export class BackendService {
           return request.pipe(
             expand(res => {
               this.progress.next(res);
+              if (res.error !== 0) {
+                throw Error(res.message);
+              }
               return res.total_progress === 100 ? EMPTY : request.pipe(delay(1000));
             }),
             last()
@@ -52,13 +63,21 @@ export class BackendService {
         }),
         switchMap(() => this.http.get<ResultData>(`${API_URL}${GET_RESULT}`, {params: {proc_uuid: curProcUuid}}))
       )
-      .subscribe(res => {
-        // console.log(res);
-        this.result = res;
-        this.leafletService.drawResult(res);
-        this.resultString.next(`Минимальное: ${res.min}\nМаксимальное: ${res.max}\nСреднее: ${res.mean}\nМедианное: ${res.median}`);
-        this.isLoading.next(false);
-        sub.unsubscribe();
-      });
+      .subscribe(
+        res => {
+          this.result = res;
+          this.leafletService.drawResult(res);
+          this.resultString.next(`Минимальное: ${res.min}\nМаксимальное: ${res.max}\nСреднее: ${res.mean}\nМедианное: ${res.median}`);
+          this.isLoading.next(false);
+          sub.unsubscribe();
+        },
+        error => {
+          this.isLoading.next(false);
+          this.snackBar.open(error, 'OK', {
+            panelClass: ['error-message'],
+            duration: 5000,
+          });
+        }
+      );
   }
 }
