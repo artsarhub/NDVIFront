@@ -1,7 +1,10 @@
 <div class="wrapper" *ngIf="isLoading">
   <div class="background">
-    <mat-progress-spinner color="primary"
-                          mode="indeterminate">
-    </mat-progress-spinner>
+    <div class="progress-wrapper">
+      <mat-progress-spinner color="primary"
+                            mode="indeterminate">
+      </mat-progress-spinner>
+      <label *ngIf="message !== ''">{{ message }}</label>
+    </div>
   </div>
 </div>

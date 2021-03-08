@@ -4,6 +4,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {ScrollingModule} from '@angular/cdk/scrolling';
 
 const modules = [
   MatButtonModule,
@@ -11,6 +12,7 @@ const modules = [
   MatInputModule,
   MatSelectModule,
   MatProgressSpinnerModule,
+  ScrollingModule,
 ];
 
 @NgModule({

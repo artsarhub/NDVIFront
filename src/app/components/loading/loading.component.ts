@@ -8,6 +8,7 @@ import {Component, Input} from '@angular/core';
 export class LoadingComponent {
 
   @Input() isLoading = false;
+  @Input() message = '';
 
   constructor() {
   }

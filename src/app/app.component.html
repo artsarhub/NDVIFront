@@ -1,17 +1,21 @@
-<app-loading [isLoading]="isLoading$ | async"></app-loading>
-<div id="map" style="width: 100%; height: 60vh; background: gray"></div>
-<div style="width: 100%; padding: 0 1rem">
-  <mat-form-field appearance="fill">
+<app-loading [isLoading]="isLoading$ | async"
+             [message]="(progress$ | async).message"></app-loading>
+<app-map></app-map>
+<div style="width: 100%; padding: 1rem">
+  <mat-form-field appearance="standard" style="margin-right: 1rem; width: 25rem">
     <mat-label>Координаты поля</mat-label>
-    <input matInput placeholder="WKT">
+    <input matInput placeholder="WKT" [(ngModel)]="polygonCoords">
   </mat-form-field>
-  <mat-form-field appearance="fill">
+  <mat-form-field appearance="standard" style="margin-right: 1rem;">
     <mat-label>Дата</mat-label>
-    <mat-select>
-      <mat-option *ngFor="let folder of folderList | async"
-                  [value]="folder">
-        {{ folder }}
-      </mat-option>
+    <mat-select [(ngModel)]="selectedDate">
+      <cdk-virtual-scroll-viewport itemSize="48" [style.height.px]="5*48" minBufferPx="300" maxBufferPx="300">
+        <mat-option *cdkVirtualFor="let folder of folderList$ | async"
+                    [value]="folder">
+          {{ folder }}
+        </mat-option>
+      </cdk-virtual-scroll-viewport>
     </mat-select>
   </mat-form-field>
+  <button mat-raised-button color="primary" (click)="calcNDVI()">Расчёт NDVI</button>
 </div>
